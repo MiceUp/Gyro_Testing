@@ -1,3 +1,3 @@
 # Gyro_Testing
-April 26, 2021
-This some code we used to test the gyroscope. 
+May 25, 2021
+This Code is used in our final prototype to translate gyro-rotations to right clicks, left clicks, double clicking, scrolling, and dragging. 
