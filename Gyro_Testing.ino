@@ -1,6 +1,7 @@
 
 #include <Wire.h> //library allows communication with I2C / TWI devices
 #include <math.h> //library includes mathematical functions
+#include <Mouse.h>
 
 const int MPU=0x68; //I2C address of the MPU-6050
 int16_t AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ; //16-bit integers
@@ -13,8 +14,9 @@ void setup()
     Wire.beginTransmission(MPU); //begin transmission to I2C slave device
     Wire.write(0x6B); // PWR_MGMT_1 register
     Wire.write(0); // set to zero (wakes up the MPU-6050)  
-    Wire.endTransmission(true); //ends transmission to I2C slave device
+    Wire.endTransmission(true); //ends transmission to I2C slavef device
     Serial.begin(9600); //serial communication at 9600 bauds
+    Mouse.begin(); 
 }
 
 void loop()
@@ -61,22 +63,47 @@ void loop()
   
     //printing values to serial port
     Serial.print("Angle: ");
-    Serial.print("Pitch = "); Serial.print(pitch + 9);
-    Serial.print(" Roll = "); Serial.println(roll + 9);
-  
-//    Serial.print("Accelerometer: ");
-//    Serial.print("X = "); Serial.print(AcX + AcXcal);
-//    Serial.print(" Y = "); Serial.print(AcY + AcYcal);
-//    Serial.print(" Z = "); Serial.println(AcZ + AcZcal); 
-//
-//    Serial.print("Temperature in celsius = "); Serial.print(t);  
-//    Serial.print(" fahrenheit = "); Serial.println(tf);  
-//  
-//    Serial.print("Gyroscope: ");
-//    Serial.print("X = "); Serial.print(GyX + GyXcal);
-//    Serial.print(" Y = "); Serial.print(GyY + GyYcal);
-//    Serial.print(" Z = "); Serial.println(GyZ + GyZcal);
-//  
+    Serial.print("Pitch = "); Serial.print(pitch + 6);
+    Serial.print(" Roll = "); Serial.println(roll);
+    
+    //if mouse is tilted to the back-left, perform left down press
+    if(roll > 16 && pitch < -13){ 
+      //Dragging Feature
+      Serial.println("Diagonal Click");
+         if (!Mouse.isPressed(MOUSE_LEFT)) {
+           Mouse.press(MOUSE_LEFT);
+           Serial.println("Diagonal Press");
+           delay(750);
+         }else{ 
+          Mouse.release(MOUSE_LEFT); 
+          Serial.println("Diagonal Release");
+          delay(750);
+         }
+    }
+    else if(roll > 18){ 
+    // if the mouse is not pressed, press it:
+      Mouse.press(MOUSE_LEFT);
+      Serial.println("Clicking Left"); 
+      delay(300);
+      Mouse.release(MOUSE_LEFT);       
+
+    }
+    else if(roll < -13){ 
+       Mouse.press(MOUSE_RIGHT);
+      Serial.println("Clicking Right"); 
+      delay(300); 
+     Mouse.release(MOUSE_RIGHT);
+    }
+    else if(pitch +6 > 20) { 
+      Mouse.move(0, 0, 1); 
+      Serial.println("Scrolling Up"); 
+       delay(100); 
+    }
+    else if(pitch +6 < -30) { 
+      Mouse.move(0, 0, -1); 
+      Serial.println("Scrolling Down"); 
+      delay(100); 
+    }
     delay(10);
 }
 
